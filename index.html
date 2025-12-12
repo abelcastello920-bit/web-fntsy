@@ -1,192 +1,852 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Fantasy Heroes RPG ⚔️✨</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Frostborn RPG — Cryo Ranger</title>
+
+<!-- FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-body{
-  margin:0;
-  height:100vh;
-  background:url('https://i.imgur.com/t0YVgUc.jpeg') center/cover no-repeat;
-  font-family:'Cinzel',serif;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  overflow:hidden;
+/* ===========================
+   FROSTBORN — CRYSTAL TEMPLE
+   PART 1 — UI + THEME ENGINE
+   =========================== */
+
+/* === COLOR VARIABLES === */
+:root {
+  --frost-bg1: #02101f;
+  --frost-bg2: #032036;
+  --frost-crystal: #7bd7ff;
+  --frost-crystal-glow: #b5f1ff;
+  --frost-accent: #4acbff;
+  --frost-accent-deep: #2fa3d0;
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-2: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --text-main: #e7faff;
+  --text-muted: #a6c7d9;
 }
 
-/* Partikel Magic */
-#magic span{
-  position:fixed;
-  bottom:-20px;
-  font-size:20px;
-  animation:rise 6s linear infinite;
-  color:#fffdd9;
-  text-shadow:0 0 10px #fefefe;
-}
-@keyframes rise{
-  from{transform:translateY(0);opacity:1}
-  to{transform:translateY(-900px);opacity:0}
+/* === GLOBAL === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Fantasy UI Box */
-.box{
-  background:rgba(0,0,0,.35);
-  backdrop-filter:blur(10px);
-  padding:20px;
-  width:90%;
-  max-width:380px;
-  border-radius:18px;
-  border:2px solid rgba(255,255,255,.2);
-  box-shadow:0 0 25px rgba(255,255,255,.3);
-  animation:fadeIn 1s ease-out;
+body {
+  min-height: 100vh;
+  color: var(--text-main);
+  font-family: 'Poppins', 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #07345d, #03121f 60%, #02070c 100%);
+  overflow-x: hidden;
+  position: relative;
 }
 
-@keyframes fadeIn{
-  from{opacity:0;transform:scale(.9)}
-  to{opacity:1;transform:scale(1)}
+/* === CRYSTAL TEMPLE BACKGROUND === */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url('https://i.imgur.com/xRqH7I4.jpeg') center/cover no-repeat;
+  opacity: 0.28;
+  filter: brightness(0.8) saturate(1.2);
+  z-index: -3;
 }
 
-input,button,select{
-  width:90%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  margin-top:10px;
-  font-size:15px;
-  font-family:'Cinzel',serif;
+/* CRYSTAL GLOW AURA */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(150, 240, 255, 0.25), transparent 70%);
+  z-index: -2;
+  pointer-events: none;
+  animation: glowPulse 6s ease-in-out infinite alternate;
 }
 
-button{
-  background:#b394ff;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  text-shadow:0 0 7px #fff;
-  border:1px solid #fff5;
+@keyframes glowPulse {
+  0% { opacity: 0.15; }
+  100% { opacity: 0.32; }
 }
 
-.hidden{display:none}
-
-.skillBtn{
-  background:#6d4cff;
-  margin:6px;
+/* === SNOW PARTICLE ENGINE === */
+.snow {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  filter: blur(1.2px);
+  opacity: 0.8;
+  animation: fall linear infinite;
 }
 
-.weaponBtn{
-  background:#c981ff;
-  margin:6px;
+@keyframes fall {
+  0%   { transform: translateY(-10vh) translateX(0); opacity: 0.3; }
+  100% { transform: translateY(110vh) translateX(20px); opacity: 0.9; }
 }
 
-h2{
-  font-size:26px;
-  text-shadow:0 0 12px #fff;
+/* We'll spawn 50–70 particles later via JS */
+
+/* === GLASS PANELS === */
+.panel {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 24px rgba(120, 200, 255, 0.15);
 }
 
-#battleLog{
-  margin-top:15px;
-  font-size:15px;
-  min-height:40px;
-  text-shadow:0 0 8px #fff;
+/* === TITLES === */
+.frost-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--frost-crystal);
+  text-shadow: 0 0 12px var(--frost-crystal-glow);
+  letter-spacing: 1.5px;
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* === BUTTONS === */
+.btn {
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  margin: 4px 0;
+  background: linear-gradient(135deg, var(--frost-accent), var(--frost-accent-deep));
+  color: #00131d;
+  box-shadow: 0 4px 18px rgba(95, 220, 255, 0.3);
+  transition: 0.2s;
+}
+
+.btn:hover {
+  filter: brightness(1.15);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--frost-crystal);
+  color: var(--frost-crystal);
+}
+
+/* === INPUTS === */
+input {
+  width: 100%;
+  padding: 10px;
+  color: var(--text-main);
+  background: var(--glass-2);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  outline: none;
+  margin-top: 6px;
+}
+
+/* === RESPONSIVE GRID INIT === */
+.wrap {
+  width: 100%;
+  max-width: 1150px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 22px;
+  padding: 20px;
+}
+
+@media(max-width: 960px) {
+  .wrap {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
-
 <body>
 
-<div id="magic"></div>
+<!-- Snow Particles Container -->
+<div id="snowContainer"></div>
 
-<!-- LOGIN -->
-<div class="box" id="login">
-  <h2>Hero Login ⚔️</h2>
-  <input id="user" placeholder="Hero Name">
-  <input id="pass" type="password" placeholder="Secret Rune">
-  <button onclick="masuk()">Enter Realm</button>
-  <p id="msg"></p>
+<div class="wrap">
+
+  <!-- =======================
+       LEFT PANEL — HERO ZONE
+       ======================= -->
+  <div class="panel">
+
+    <div style="text-align:center; margin-bottom:15px;">
+      <div class="frost-title">CRYO RANGER</div>
+      <div class="sub">Arctic Wind • Crystal Temple</div>
+    </div>
+
+    <!-- Avatar -->
+    <div style="text-align:center;">
+      <img id="avatarImg" src="https://i.imgur.com/4Y9K9YB.png"
+           style="width:130px;height:130px;border-radius:16px;
+           border:2px solid var(--frost-crystal);
+           box-shadow:0 0 22px rgba(140,230,255,0.3);
+           object-fit:cover;">
+    </div>
+
+    <!-- LOGIN AREA -->
+    <div id="authArea" style="margin-top:18px;">
+      <div class="sub">Hero Name</div>
+      <input id="loginName" placeholder="rindu">
+
+      <div class="sub" style="margin-top:10px;">Rune Password</div>
+      <input id="loginPass" type="password" placeholder="sayang">
+
+      <button class="btn" style="margin-top:12px;" onclick="doLogin()">Login</button>
+      <button class="btn btn-ghost" style="margin-top:10px;" onclick="quickRegister()">Create Hero</button>
+
+      <div class="sub" style="margin-top:10px;font-size:12px;">
+        Default login: <b>rindu / sayang</b>
+      </div>
+    </div>
+
+    <!-- HERO PANEL (AFTER LOGIN) -->
+    <div id="heroArea" style="display:none; margin-top:15px;">
+
+      <!-- HERO NAME + CLASS -->
+      <div style="text-align:center;margin-bottom:10px;">
+        <div style="font-size:22px;font-weight:800;color:var(--frost-crystal);text-shadow:0 0 10px var(--frost-crystal-glow);" id="heroName">Hero</div>
+        <div class="sub" id="heroClass">Cryo Ranger</div>
+      </div>
+
+      <!-- STATS BOX -->
+      <div class="panel" style="padding:12px;margin-bottom:15px;">
+        <div class="sub">HP</div>
+        <div style="font-weight:700" id="hpVal">0/0</div>
+        <div class="progress"><div id="hpBar" style="background:linear-gradient(90deg,#71d8ff,#b3f7ff);height:10px;width:0%;border-radius:12px;"></div></div>
+
+        <div class="sub" style="margin-top:12px;">MP</div>
+        <div style="font-weight:700" id="mpVal">0/0</div>
+        <div class="progress"><div id="mpBar" style="background:linear-gradient(90deg,#85a8ff,#d3e5ff);height:10px;width:0%;border-radius:12px;"></div></div>
+
+        <div style="display:flex;gap:10px;margin-top:12px;">
+          <div style="flex:1;" class="sub">ATK <div id="atkVal" style="font-weight:700;">0</div></div>
+          <div style="flex:1;" class="sub">DEF <div id="defVal" style="font-weight:700;">0</div></div>
+        </div>
+
+        <div class="sub" style="margin-top:12px;">Level <b id="levelVal">1</b></div>
+        <div class="sub">EXP <span id="expVal">0</span>/<span id="expNext">100</span></div>
+        <div class="progress"><div id="expBar" style="background:linear-gradient(90deg,#4acbff,#8ee7ff);height:10px;width:0%;border-radius:12px;"></div></div>
+      </div>
+
+      <!-- AVATAR UPLOAD -->
+      <div>
+        <div class="sub" style="margin-bottom:6px;">Change Avatar</div>
+        <input id="avatarUpload" type="file" accept="image/*">
+      </div>
+
+      <!-- SAVE & LOGOUT -->
+      <button class="btn" style="margin-top:14px;" onclick="saveHero()">Save Hero</button>
+      <button class="btn btn-ghost" style="margin-top:8px;" onclick="logout()">Logout</button>
+
+    </div>
+
+  </div>
+
+  <!-- ======================
+       RIGHT SIDE — GAME UI
+       ====================== -->
+  <div>
+
+    <!-- ARENA TITLE -->
+    <div class="panel" style="margin-bottom:18px;">
+      <div class="frost-title">Crystal Temple Arena</div>
+      <div class="sub">Frost enemies await within the sacred hall.</div>
+    </div>
+
+    <!-- ENEMY CARD -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:700;font-size:20px;color:var(--frost-crystal);" id="enemyName">No enemy</div>
+          <div class="sub" id="enemyInfo">—</div>
+        </div>
+
+        <div style="width:220px;">
+          <div class="sub">Enemy HP</div>
+          <div id="enemyHPVal" style="font-weight:700;">0</div>
+          <div class="progress"><div id="enemyHPBar" style="background:linear-gradient(90deg,#4acbff,#aef5ff);height:10px;width:0%;border-radius:12px;"></div></div>
+        </div>
+      </div>
+
+      <div id="enemySprite" style="font-size:70px;text-align:center;margin-top:12px;">
+        ❄️
+      </div>
+    </div>
+
+    <!-- SKILL PANEL -->
+    <div class="panel">
+      <div class="sub">Cryo Ranger Skills</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;" id="skillsArea">
+        <!-- Buttons generated in Part 3 -->
+      </div>
+    </div>
+
+    <!-- WEAPON + INVENTORY -->
+    <div class="panel">
+      <div class="sub">Weapons</div>
+      <div id="weaponsArea" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+
+      <div class="sub" style="margin-top:20px;">Inventory</div>
+      <div id="invArea" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="panel">
+      <button class="btn" onclick="attack()">Basic Attack</button>
+      <button class="btn btn-ghost" onclick="heal()" style="margin-left:10px;">Rest & Heal</button>
+      <button class="btn btn-ghost" onclick="flee()" style="margin-left:10px;">Flee</button>
+
+      <div style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="spawnEnemy()">Spawn Frost Enemy</button>
+        <button class="btn btn-ghost" onclick="autoFarm()" style="margin-left:10px;">Auto Farm</button>
+      </div>
+    </div>
+
+    <!-- BATTLE LOG -->
+    <div class="panel">
+      <div class="sub">Battle Log</div>
+      <div id="battleLog" style="
+          height:150px;
+          overflow:auto;
+          background:rgba(255,255,255,0.04);
+          border-radius:12px;
+          padding:10px;
+          margin-top:10px;
+          font-size:13px;
+      ">Awaiting battle...</div>
+    </div>
+
+  </div>
+
 </div>
-
-<!-- DASHBOARD -->
-<div class="box hidden" id="dash">
-  <h2>Welcome, Hero of Destiny 🌟</h2>
-  <p id="hari"></p>
-  <hr style="width:70%;opacity:.3">
-
-  <!-- SKILLS -->
-  <h3>Hero Skills ⚡</h3>
-  <button class="skillBtn" onclick="useSkill('Fire Slash','🔥','You unleash a blazing strike!')">Fire Slash 🔥</button>
-  <button class="skillBtn" onclick="useSkill('Shadow Step','🌑','You vanish into darkness and strike!')">Shadow Step 🌑</button>
-  <button class="skillBtn" onclick="useSkill('Dragon Roar','🐉','Your roar shakes the battlefield!')">Dragon Roar 🐉</button>
-  <button class="skillBtn" onclick="useSkill('Light Heal','✨','A warm light heals your wounds.')">Light Heal ✨</button>
-  <button class="skillBtn" onclick="useSkill('Mystic Pulse','💠','Arcane energy bursts outward!')">Mystic Pulse 💠</button>
-
-  <hr style="width:70%;opacity:.3">
-
-  <!-- WEAPONS -->
-  <h3>Equip Weapon ⚔️</h3>
-  <button class="weaponBtn" onclick="equip('Silver Sword','🗡️')">Silver Sword 🗡️</button>
-  <button class="weaponBtn" onclick="equip('Greatsword of Valor','⚔️')">Greatsword ⚔️</button>
-  <button class="weaponBtn" onclick="equip('Elven Bow','🏹')">Elven Bow 🏹</button>
-  <button class="weaponBtn" onclick="equip('Arcane Staff','🔮')">Arcane Staff 🔮</button>
-  <button class="weaponBtn" onclick="equip('Dragon Blade','🐉⚔️')">Dragon Blade 🐉⚔️</button>
-
-  <hr style="width:70%;opacity:.3">
-
-  <div id="battleLog">Choose your action, hero…</div>
-
-  <button onclick="surprise()">Receive Blessing ✨</button>
-</div>
-
 <script>
-// LOGIN
-function masuk(){
-  if(user.value==="rindu" && pass.value==="sayang"){
-    login.classList.add("hidden");
-    dash.classList.remove("hidden");
-    magic();
-    hitungHari();
+/* ====================================================
+   FROSTBORN: CRYO RANGER — RPG ENGINE
+   PART 3 — Combat, Skills, Enemies, Save, Inventory
+   ==================================================== */
+
+const LS_KEY = "frostborn_save_v1";
+
+/* === Base Template Hero === */
+const defaultHero = {
+  u: "rindu",
+  p: "sayang",
+  name: "Cryo Ranger",
+  cls: "Cryo Ranger",
+  lvl: 1,
+  xp: 0,
+  xpNext: 120,
+  hpMax: 120,
+  hp: 120,
+  mpMax: 60,
+  mp: 60,
+  atk: 18,
+  def: 5,
+  gold: 0,
+  crit: 12,
+  spd: 1.0,
+  weapon: null,
+  inv: [],
+  avatar: "",
+};
+
+let hero = null;
+let enemy = null;
+let cooldowns = {};
+let autoFarmInterval = null;
+
+const $ = id => document.getElementById(id);
+
+
+/* ============================================
+   LOGIN / REGISTER
+   ============================================ */
+function quickRegister(){
+  const n = prompt("Hero name?","Ranger");
+  if(!n) return;
+  
+  const p = prompt("Password hero?","sayang");
+  hero = { ...defaultHero, u:n.toLowerCase(), p:p, name:n };
+  saveGame();
+  showHero();
+}
+
+function doLogin(){
+  const u = $("loginName").value.trim().toLowerCase();
+  const p = $("loginPass").value.trim();
+
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+
+  if(saved && saved.u === u && saved.p === p){
+    hero = saved;
+    showHero();
+    log("Welcome back, Cryo Ranger ❄️🏹");
+  } else if(u === defaultHero.u && p === defaultHero.p){
+    hero = { ...defaultHero };
+    saveGame();
+    showHero();
+    log("Default hero awakened from the frost...");
   } else {
-    msg.innerHTML="The runes do not match… Try again, hero.";
+    alert("Login gagal, coba register!");
   }
 }
 
-// MAGIC PARTICLE
-function magic(){
-  setInterval(()=>{
-    let m=document.createElement("span");
-    m.innerHTML="✨";
-    m.style.left=Math.random()*100+"%";
-    m.style.fontSize=(15+Math.random()*18)+"px";
-    magic.appendChild(m);
-    setTimeout(()=>m.remove(),6000);
-  },350);
+
+/* ============================================
+   SHOW HERO UI
+   ============================================ */
+function showHero(){
+  $("authArea").style.display = "none";
+  $("heroArea").style.display = "block";
+
+  $("heroName").innerText = hero.name;
+  $("heroClass").innerText = hero.cls;
+
+  $("hpVal").innerText = `${hero.hp}/${hero.hpMax}`;
+  $("mpVal").innerText = `${hero.mp}/${hero.mpMax}`;
+  $("atkVal").innerText = hero.atk;
+  $("defVal").innerText = hero.def;
+  $("levelVal").innerText = hero.lvl;
+  $("expVal").innerText = hero.xp;
+  $("expNext").innerText = hero.xpNext;
+  $("goldVal") && ($("goldVal").innerText = hero.gold);
+
+  setBar("hpBar", hero.hp / hero.hpMax);
+  setBar("mpBar", hero.mp / hero.mpMax);
+  setBar("expBar", hero.xp / hero.xpNext);
+
+  // avatar load
+  $("avatarImg").src = hero.avatar || "https://i.imgur.com/4Y9K9YB.png";
+
+  renderWeapons();
+  renderSkills();
+  renderInventory();
 }
 
-// DATE COUNTER
-function hitungHari(){
-  let mulai = new Date("2024-01-01");
-  let sekarang = new Date();
-  let beda = Math.floor((sekarang - mulai)/86400000);
-  hari.innerHTML="You have walked "+beda+" days on your heroic path 🌌";
+function setBar(id, ratio){
+  $(id).style.width = (ratio*100)+"%";
 }
 
-// SKILLS
-function useSkill(name,icon,text){
-  battleLog.innerHTML = icon+" <b>"+name+"</b><br>"+text;
+
+/* ============================================
+   AVATAR UPLOAD
+   ============================================ */
+$("avatarUpload").addEventListener("change", e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const r = new FileReader();
+  r.onload = ()=>{
+    hero.avatar = r.result;
+    saveGame();
+    showHero();
+  };
+  r.readAsDataURL(file);
+});
+
+
+/* ============================================
+   WEAPONS — CRYO RANGER
+   ============================================ */
+const WEAPONS = [
+  { id:"cryobow", name:"Cryo Bow", atk:8, crit:5, emoji:"🏹❄️" },
+  { id:"crystalbow", name:"Crystal Bow", atk:12, crit:8, emoji:"💎🏹" },
+  { id:"frostbite", name:"Frostbite Recurve", atk:16, crit:10, emoji:"🧊🏹" }
+];
+
+function renderWeapons(){
+  const area = $("weaponsArea");
+  area.innerHTML = "";
+
+  WEAPONS.forEach(w=>{
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.style.fontSize = "13px";
+    b.innerText = `${w.emoji} ${w.name}`;
+    b.onclick = ()=>equip(w);
+    area.appendChild(b);
+  });
 }
 
-// WEAPONS
-function equip(name,icon){
-  battleLog.innerHTML = icon+" <b>"+name+" equipped</b><br>Your power rises...";
+function equip(w){
+  hero.weapon = w;
+  hero.atk = 18 + w.atk;
+  hero.crit = 12 + w.crit;
+  log(`Equipped ${w.name}!`);
+  saveGame();
+  showHero();
 }
 
-// SURPRISE
-function surprise(){
-  alert("A divine blessing strengthens your heart, hero ✨❤️‍🔥");
+
+/* ============================================
+   SKILLS — CRYO RANGER
+   ============================================ */
+const SKILLS = [
+  { id:"icearrow",   name:"Ice Arrow", mp:8, cd:4, dmg:18, emoji:"❄️🏹" },
+  { id:"blizzard",   name:"Blizzard Volley", mp:14, cd:10, dmg:28, emoji:"🌨️" },
+  { id:"crystal",    name:"Crystal Burst", mp:10, cd:7, dmg:22, emoji:"💎❄️" },
+  { id:"northwind",  name:"Northwind Mark", mp:12, cd:9, dmg:20, bonusCrit:15, emoji:"🌬️❄️" }
+];
+
+function renderSkills(){
+  const area = $("skillsArea");
+  area.innerHTML = "";
+
+  SKILLS.forEach(s=>{
+    const btn = document.createElement("button");
+    const cd = cooldowns[s.id] || 0;
+
+    btn.className = "btn";
+    btn.style.fontSize = "13px";
+    btn.style.background = "linear-gradient(135deg,#7bd7ff,#4acbff)";
+    btn.innerHTML = `${s.emoji} ${s.name} ${cd>0?`(${cd}s)`:''}`;
+
+    btn.disabled = cd>0 || hero.mp < s.mp;
+
+    btn.onclick = ()=>useSkill(s);
+    area.appendChild(btn);
+  });
 }
+
+/* cooldown tick */
+setInterval(()=>{
+  let changed = false;
+  for(const k in cooldowns){
+    if(cooldowns[k] > 0){
+      cooldowns[k]--;
+      changed = true;
+    }
+  }
+  if(changed) renderSkills();
+},1000);
+
+
+/* ============================================
+   SKILL USE
+   ============================================ */
+function useSkill(s){
+  if(hero.mp < s.mp){
+    log("❌ Not enough MP!");
+    return;
+  }
+
+  hero.mp -= s.mp;
+  setBar("mpBar", hero.mp/hero.mpMax);
+  $("mpVal").innerText = `${hero.mp}/${hero.mpMax}`;
+
+  cooldowns[s.id] = s.cd;
+
+  let dmg = s.dmg + hero.atk;
+
+  // skill-specific bonuses
+  if(s.bonusCrit){
+    const critRoll = hero.crit + s.bonusCrit;
+    if(Math.random()*100 < critRoll){
+      dmg *= 2;
+      log(`<span style='color:#9cf'>❄️ CRITICAL Northwind Strike! Damage x2!</span>`);
+    }
+  }
+
+  enemyDamage(dmg, s.name+" "+s.emoji);
+
+  renderSkills();
+}
+
+
+/* ============================================
+   ENEMY SYSTEM — FROSTBORNE
+   ============================================ */
+function spawnEnemy(){
+  const enemies = [
+    {name:"Ice Wolf",      lvlMod:0,  hp:90,  atk:14, def:4, emoji:"🐺❄️"},
+    {name:"Crystal Golem", lvlMod:+1, hp:140, atk:18, def:8, emoji:"🗿💎"},
+    {name:"Blizzard Wraith", lvlMod:+2, hp:120, atk:22, def:6, emoji:"👻❄️"}
+  ];
+
+  const e = enemies[Math.floor(Math.random()*enemies.length)];
+
+  const lvl = hero.lvl + e.lvlMod;
+
+  enemy = {
+    name: e.name,
+    lvl: lvl,
+    hpMax: e.hp + lvl*15,
+    hp: e.hp + lvl*15,
+    atk: e.atk + lvl*2,
+    def: e.def + lvl,
+    emoji: e.emoji,
+    exp: 30 + lvl*15,
+    gold: 12 + lvl*6
+  };
+
+  $("enemyName").innerText = enemy.name;
+  $("enemyInfo").innerText = `Lv ${enemy.lvl} — Frostborne`;
+  $("enemyHPVal").innerText = `${enemy.hp}/${enemy.hpMax}`;
+  $("enemySprite").innerText = enemy.emoji;
+  setBar("enemyHPBar", enemy.hp/enemy.hpMax);
+
+  log(`❄️ A wild ${enemy.name} appears!`);
+}
+
+
+/* ============================================
+   BASIC ATTACK
+   ============================================ */
+function attack(){
+  if(!enemy){
+    spawnEnemy();
+    return;
+  }
+
+  const base = hero.atk;
+  const critRoll = Math.random()*100 < hero.crit;
+  const dmg = critRoll ? base*2 : base;
+
+  enemyDamage(dmg, critRoll?"CRITICAL STRIKE!":"Basic Attack");
+}
+
+function enemyDamage(dmg, tag){
+  if(!enemy) return;
+  
+  const real = Math.max(1, dmg - enemy.def);
+  enemy.hp -= real;
+
+  log(`💥 <b>${tag}</b> dealt <b>${real}</b> damage!`);
+  $("enemyHPVal").innerText = `${enemy.hp}/${enemy.hpMax}`;
+  setBar("enemyHPBar", enemy.hp/enemy.hpMax);
+
+  if(enemy.hp <= 0){
+    log(`<span style="color:#9ff">❄️ ${enemy.name} defeated!</span>`);
+    heroWin(enemy);
+    enemy = null;
+    return;
+  }
+
+  setTimeout(enemyAttack, 700);
+}
+
+function enemyAttack(){
+  if(!enemy) return;
+
+  const dmg = Math.max(1, enemy.atk - hero.def + Math.floor(Math.random()*5));
+
+  hero.hp -= dmg;
+  if(hero.hp < 0) hero.hp = 0;
+
+  $("hpVal").innerText = `${hero.hp}/${hero.hpMax}`;
+  setBar("hpBar", hero.hp/hero.hpMax);
+
+  log(`${enemy.name} hits you for ${dmg} damage!`);
+
+  if(hero.hp <= 0){
+    log("<b style='color:#f88'>💀 You fell in battle...</b>");
+    hero.hp = Math.floor(hero.hpMax*0.5);
+    hero.gold = Math.max(0, hero.gold - 10);
+    saveGame();
+    showHero();
+  }
+}
+
+
+/* ============================================
+   HERO VICTORY / XP SYSTEM
+   ============================================ */
+function heroWin(e){
+  hero.xp += e.exp;
+  hero.gold += e.gold;
+
+  log(`✨ Gained <b>${e.exp} XP</b> and <b>${e.gold} gold</b>.`);
+
+  // random item
+  if(Math.random() < 0.35){
+    const item = {
+      name:"Frost Potion",
+      type:"potion",
+      value:35
+    };
+    hero.inv.push(item);
+    log("🧪 Found a Frost Potion!");
+  }
+
+  checkLevelUp();
+  saveGame();
+  showHero();
+}
+
+function checkLevelUp(){
+  while(hero.xp >= hero.xpNext){
+    hero.xp -= hero.xpNext;
+    hero.lvl++;
+    hero.xpNext = Math.floor(hero.xpNext * 1.4);
+
+    hero.hpMax += 20;
+    hero.mpMax += 10;
+    hero.atk += 4;
+    hero.def += 2;
+
+    hero.hp = hero.hpMax;
+    hero.mp = hero.mpMax;
+
+    log(`<span style="color:#aff">❄️ LEVEL UP! Now LV ${hero.lvl}!</span>`);
+  }
+}
+
+
+/* ============================================
+   INVENTORY
+   ============================================ */
+function renderInventory(){
+  const area = $("invArea");
+  area.innerHTML = "";
+
+  if(hero.inv.length === 0){
+    area.innerHTML = "<div class='sub'>No items</div>";
+    return;
+  }
+
+  hero.inv.forEach((it, i)=>{
+    const d = document.createElement("div");
+    d.innerHTML = `🧊 ${it.name}`;
+    d.className = "btn btn-ghost";
+    d.style.fontSize = "12px";
+    d.onclick = ()=>useItem(i);
+    area.appendChild(d);
+  });
+}
+
+function useItem(i){
+  const it = hero.inv[i];
+  if(!it) return;
+
+  if(it.type === "potion"){
+    hero.hp = Math.min(hero.hpMax, hero.hp + it.value);
+    log(`🧪 Frost Potion healed ${it.value} HP!`);
+  }
+
+  hero.inv.splice(i,1);
+  saveGame();
+  showHero();
+}
+
+
+/* ============================================
+   REST / FLEE
+   ============================================ */
+function heal(){
+  hero.hp = Math.min(hero.hpMax, hero.hp + Math.floor(hero.hpMax*0.25));
+  hero.mp = Math.min(hero.mpMax, hero.mp + Math.floor(hero.mpMax*0.25));
+
+  log("❄️ You rest and regain HP/MP...");
+  saveGame();
+  showHero();
+}
+
+function flee(){
+  if(!enemy){
+    log("No enemy to flee from.");
+    return;
+  }
+
+  if(Math.random() < 0.5){
+    log("🏃 You escaped safely!");
+    enemy = null;
+  } else {
+    log("⚠️ Failed to flee! Enemy attacks!");
+    enemyAttack();
+  }
+}
+
+
+/* ============================================
+   SAVE / LOAD
+   ============================================ */
+function saveGame(){
+  const data = { ...hero };
+  localStorage.setItem(LS_KEY, JSON.stringify(data));
+}
+
+function logout(){
+  localStorage.removeItem(LS_KEY);
+  location.reload();
+}
+
+
+/* ============================================
+   AUTO FARM
+   ============================================ */
+function autoFarm(){
+  if(autoFarmInterval){
+    clearInterval(autoFarmInterval);
+    autoFarmInterval = null;
+    log("⛔ Auto farm stopped.");
+    return;
+  }
+
+  log("⚡ Auto farm started!");
+
+  autoFarmInterval = setInterval(()=>{
+    if(!enemy) spawnEnemy();
+    attack();
+  }, 2500);
+}
+
+
+/* ============================================
+   SNOW PARTICLE GENERATOR
+   ============================================ */
+function spawnSnow(){
+  for(let i=0;i<60;i++){
+    const s = document.createElement("div");
+    s.className = "snow";
+    s.style.left = Math.random()*100 + "vw";
+    s.style.animationDuration = (5 + Math.random()*5) + "s";
+    s.style.opacity = (0.3 + Math.random()*0.7);
+    $("snowContainer").appendChild(s);
+  }
+}
+
+
+/* ============================================
+   BATTLE LOG
+   ============================================ */
+function log(t){
+  const box = $("battleLog");
+  const d = document.createElement("div");
+  d.innerHTML = t;
+  box.prepend(d);
+}
+
+
+/* ============================================
+   INIT
+   ============================================ */
+window.onload = ()=>{
+  const saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+
+  if(saved){
+    hero = saved;
+    showHero();
+  } else {
+    $("loginName").value = "rindu";
+    $("loginPass").value = "sayang";
+  }
+
+  spawnSnow();
+};
 </script>
 
 </body>
