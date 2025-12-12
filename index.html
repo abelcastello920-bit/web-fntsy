@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Fantasy Heroes RPG ⚔️✨</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  background:url('https://i.imgur.com/t0YVgUc.jpeg') center/cover no-repeat;
+  font-family:'Cinzel',serif;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  overflow:hidden;
+}
+
+/* Partikel Magic */
+#magic span{
+  position:fixed;
+  bottom:-20px;
+  font-size:20px;
+  animation:rise 6s linear infinite;
+  color:#fffdd9;
+  text-shadow:0 0 10px #fefefe;
+}
+@keyframes rise{
+  from{transform:translateY(0);opacity:1}
+  to{transform:translateY(-900px);opacity:0}
+}
+
+/* Fantasy UI Box */
+.box{
+  background:rgba(0,0,0,.35);
+  backdrop-filter:blur(10px);
+  padding:20px;
+  width:90%;
+  max-width:380px;
+  border-radius:18px;
+  border:2px solid rgba(255,255,255,.2);
+  box-shadow:0 0 25px rgba(255,255,255,.3);
+  animation:fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(.9)}
+  to{opacity:1;transform:scale(1)}
+}
+
+input,button,select{
+  width:90%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  margin-top:10px;
+  font-size:15px;
+  font-family:'Cinzel',serif;
+}
+
+button{
+  background:#b394ff;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  text-shadow:0 0 7px #fff;
+  border:1px solid #fff5;
+}
+
+.hidden{display:none}
+
+.skillBtn{
+  background:#6d4cff;
+  margin:6px;
+}
+
+.weaponBtn{
+  background:#c981ff;
+  margin:6px;
+}
+
+h2{
+  font-size:26px;
+  text-shadow:0 0 12px #fff;
+}
+
+#battleLog{
+  margin-top:15px;
+  font-size:15px;
+  min-height:40px;
+  text-shadow:0 0 8px #fff;
+}
+</style>
+</head>
+
+<body>
+
+<div id="magic"></div>
+
+<!-- LOGIN -->
+<div class="box" id="login">
+  <h2>Hero Login ⚔️</h2>
+  <input id="user" placeholder="Hero Name">
+  <input id="pass" type="password" placeholder="Secret Rune">
+  <button onclick="masuk()">Enter Realm</button>
+  <p id="msg"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div class="box hidden" id="dash">
+  <h2>Welcome, Hero of Destiny 🌟</h2>
+  <p id="hari"></p>
+  <hr style="width:70%;opacity:.3">
+
+  <!-- SKILLS -->
+  <h3>Hero Skills ⚡</h3>
+  <button class="skillBtn" onclick="useSkill('Fire Slash','🔥','You unleash a blazing strike!')">Fire Slash 🔥</button>
+  <button class="skillBtn" onclick="useSkill('Shadow Step','🌑','You vanish into darkness and strike!')">Shadow Step 🌑</button>
+  <button class="skillBtn" onclick="useSkill('Dragon Roar','🐉','Your roar shakes the battlefield!')">Dragon Roar 🐉</button>
+  <button class="skillBtn" onclick="useSkill('Light Heal','✨','A warm light heals your wounds.')">Light Heal ✨</button>
+  <button class="skillBtn" onclick="useSkill('Mystic Pulse','💠','Arcane energy bursts outward!')">Mystic Pulse 💠</button>
+
+  <hr style="width:70%;opacity:.3">
+
+  <!-- WEAPONS -->
+  <h3>Equip Weapon ⚔️</h3>
+  <button class="weaponBtn" onclick="equip('Silver Sword','🗡️')">Silver Sword 🗡️</button>
+  <button class="weaponBtn" onclick="equip('Greatsword of Valor','⚔️')">Greatsword ⚔️</button>
+  <button class="weaponBtn" onclick="equip('Elven Bow','🏹')">Elven Bow 🏹</button>
+  <button class="weaponBtn" onclick="equip('Arcane Staff','🔮')">Arcane Staff 🔮</button>
+  <button class="weaponBtn" onclick="equip('Dragon Blade','🐉⚔️')">Dragon Blade 🐉⚔️</button>
+
+  <hr style="width:70%;opacity:.3">
+
+  <div id="battleLog">Choose your action, hero…</div>
+
+  <button onclick="surprise()">Receive Blessing ✨</button>
+</div>
+
+<script>
+// LOGIN
+function masuk(){
+  if(user.value==="rindu" && pass.value==="sayang"){
+    login.classList.add("hidden");
+    dash.classList.remove("hidden");
+    magic();
+    hitungHari();
+  } else {
+    msg.innerHTML="The runes do not match… Try again, hero.";
+  }
+}
+
+// MAGIC PARTICLE
+function magic(){
+  setInterval(()=>{
+    let m=document.createElement("span");
+    m.innerHTML="✨";
+    m.style.left=Math.random()*100+"%";
+    m.style.fontSize=(15+Math.random()*18)+"px";
+    magic.appendChild(m);
+    setTimeout(()=>m.remove(),6000);
+  },350);
+}
+
+// DATE COUNTER
+function hitungHari(){
+  let mulai = new Date("2024-01-01");
+  let sekarang = new Date();
+  let beda = Math.floor((sekarang - mulai)/86400000);
+  hari.innerHTML="You have walked "+beda+" days on your heroic path 🌌";
+}
+
+// SKILLS
+function useSkill(name,icon,text){
+  battleLog.innerHTML = icon+" <b>"+name+"</b><br>"+text;
+}
+
+// WEAPONS
+function equip(name,icon){
+  battleLog.innerHTML = icon+" <b>"+name+" equipped</b><br>Your power rises...";
+}
+
+// SURPRISE
+function surprise(){
+  alert("A divine blessing strengthens your heart, hero ✨❤️‍🔥");
+}
+</script>
+
+</body>
+</html>
